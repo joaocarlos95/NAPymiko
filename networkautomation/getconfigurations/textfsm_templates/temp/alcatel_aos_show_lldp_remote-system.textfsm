@@ -1,0 +1,13 @@
+Value Required neighbor_hostname (.*)
+Value Required local_interface (\S+)
+Value Required neighbor_interface (.*)
+Value neighbor_ip (\d+?\.\d+?\.\d+?\.\d+?|\w+?\.\w+?\.\w+?)
+Value system_description (.*)
+
+
+Start
+  ^Remote LLDP.+Port ${local_interface}:
+  ^\s+Chassis.+, Port ${neighbor_interface}:
+  ^\s+System Name\s+\=\s${neighbor_hostname},
+  ^\s+System\sDescription\s+\=\s${system_description}$$
+  ^\s+Management IP Address\s+\=\s${neighbor_ip}, -> Record

@@ -1,0 +1,47 @@
++-----------------------------------------------------------------------------------------------------------+
+| CLIENT INFORMATION																						|
++-----------------------------------------------------------------------------------------------------------+
+ Root Directory: directory where the script output will be placed
+	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
+
+ Client Name: name of the client (output of the script is saved in a folder with the client name)
+	> Cooprofar
+
+ Device List: file with all the ip_address of the devices and respective credentials
+	> device_list.csv
+
+
++-----------------------------------------------------------------------------------------------------------+
+| KEEPASS INFORMATION 																						|
++-----------------------------------------------------------------------------------------------------------+
+ Keepass Folder: folder where the keepass database is stored
+	> C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom
+
+ Keepass Database: name of the keepass database
+	> Credentials.kdbx
+
+ NOTE: if not applicable, delete this part and add to the device_list.csv file the username
+	   and password for each device
+
+
++-----------------------------------------------------------------------------------------------------------+
+| OTHER INFORMATION 																						|
++-----------------------------------------------------------------------------------------------------------+
+ Custom Commands: name of the file where specific commands to run on the network devices are
+	> command_list.txt
+
+ Connection Method: method of connection (SSH, Telnet, Serial)
+	> Telnet
+
+
++-----------------------------------------------------------------------------------------------------------+
+| INFORMATION TO BE COLLECTED																				|
++-----------------------------------------------------------------------------------------------------------+
+ [X] Device Configuration
+ [-] Device Information
+ [-] Device Inventory
+ [?] Interfaces Information																					| Adicionar as SVIs/Port-Channels e respetivos endereços IPs
+ [?] Interfaces Statistics 																					| Tratar da informação toda
+ [X] Neighbors (CDP)
+ [?] Neighbors (LLDP)																						| Adicionar o show_lldp_neighbors para se obter mais alguma informação
+ [ ] Custom Commands

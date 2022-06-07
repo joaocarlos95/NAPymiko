@@ -1,0 +1,19 @@
+Value Required neighbor_hostname (\S+)
+Value Required local_interface (\S+)
+Value Required neighbor_interface (\S+)
+#Value CHASSIS_ID (\w+?\.\w+?\.\w+?)
+Value neighbor_ip (\d+?\.\d+?\.\d+?\.\d+?|\w+?\.\w+?\.\w+?)
+Value system_description (.*)
+#Value CAPABILITIES (.*)
+#Value VLAN ([0-9]+)
+
+Start
+  ^.*not advertised
+#  ^[Cc]hassis\s[idID]{2}\:\s${CHASSIS_ID}$$
+  ^[Pp]ort\s[idID]{2}\:\s${neighbor_interface}$$
+  ^[Ll]ocal\s[Pp]ort\s[idID]{2}\:\s${local_interface}$$
+  ^[Ss]ystem\s[Nn]ame\:\s${neighbor_hostname}$$
+  ^[Ss]ystem\s[Dd]escription\:\s${system_description}$$
+#  ^[Ee]nabled\s[Cc]apabilities\:\s${CAPABILITIES}$$
+  ^[Mm]anagement\s[Aa]ddress\:\s${neighbor_ip}$$
+#  ^[Vv]lan\s[idID]{2}\:\s${VLAN}$$ -> Record

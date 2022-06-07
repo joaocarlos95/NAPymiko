@@ -1,0 +1,18 @@
+hostname SW_Infante_Dom_Augusto
+vlan 1
+    ip address 10.206.78.252 255.255.255.0
+	no shut
+ip default-gateway 10.206.78.253
+int range fa0/1-24
+	switchport mode access
+	switchport access vlan 1
+int range gi0/1-2
+	switchport mode access
+	switchport access vlan 1
+username Warpcom priv 15 secret Warpcom.2021
+line con 0
+	login local
+line vty 0 15
+	login local
+ip domain-name cmseixal.pt
+crypto key generate rsa

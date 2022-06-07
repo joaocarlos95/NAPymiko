@@ -1,0 +1,30 @@
+Value Required neighbor_hostname (.*)
+#Value system_name (.*)
+Value neighbor_ip (.*)
+Value neighbor_model (.*)
+Value Required neighbor_interface (.*)
+Value Required local_interface (.*)
+#Value version (.*)
+#Value neighbor_interface_ip (.*)
+#Value capabilities (.*[^\s])
+
+Start
+  ^Device ID:${neighbor_hostname}
+#  ^System Name: ${system_name}
+#  ^Interface address\(es\):\s*(^[1-9]\d*|$$) -> GetInterfaceIP
+  ^Mgmt address\(es\): -> GetIP
+#  ^Platform: ${neighbor_model}, Capabilities: ${capabilities}\s*$$
+  ^Platform: ${neighbor_model},
+  ^Interface: ${local_interface}, Port ID \(outgoing port\): ${neighbor_interface}
+#  ^Version: -> GetVersion
+  ^----- -> Record
+
+GetIP
+  ^.*IP.+Address: ${neighbor_ip} -> Start
+
+#GetInterfaceIP
+#  ^.*IP.+Address: ${neighbor_interface_ip} -> Start
+
+#GetVersion
+#  ^${version} -> Start
+

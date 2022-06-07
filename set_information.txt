@@ -1,0 +1,34 @@
++-----------------------------------------------------------------------------------------------------------+
+| CLIENT INFORMATION																						|
++-----------------------------------------------------------------------------------------------------------+
+ Root Directory: directory where the script output will be placed
+	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
+
+ Client Name: name of the client (output of the script is saved in a folder with the client name)
+	> Câmara Municipal do Seixal
+
+ Device List: file with all the ip_address of the devices and respective credentials
+	> device_list.csv
+
+
++-----------------------------------------------------------------------------------------------------------+
+| KEEPASS INFORMATION 																						|
++-----------------------------------------------------------------------------------------------------------+
+ Keepass Folder1: folder where the keepass database is stored
+	> C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom
+
+ Keepass Database1: name of the keepass database
+	> Credentials.kdbx
+
+ NOTE: if not applicable, delete this part and add to the device_list.csv file the username
+	   and password for each device
+
+
++-----------------------------------------------------------------------------------------------------------+
+| OTHER INFORMATION 																						|
++-----------------------------------------------------------------------------------------------------------+
+ Custom Configuration: name of the file that has the configuration to apply to the network device
+	> configuration.txt
+
+ Connection Method: method of connection (SSH, Telnet, Serial)
+	> Serial

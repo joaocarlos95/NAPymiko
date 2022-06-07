@@ -1,0 +1,22 @@
+!
+hostname {{ device.hostname }}
+username warpcom privilege 15 secret Warpcom.2022
+!
+no ip domain lookup
+!
+{% include "cisco_ios_vlans.j2" %}
+!
+{% include "cisco_ios_interfaces.j2" %}
+!
+{% include "cisco_ios_ip_addresses.j2" %}
+!
+{% include "cisco_ios_routes.j2" %}
+!
+line con 0
+    logging synchronous
+    login local
+line vty 0 4
+    logging synchronous
+    transport input ssh
+    login local
+!

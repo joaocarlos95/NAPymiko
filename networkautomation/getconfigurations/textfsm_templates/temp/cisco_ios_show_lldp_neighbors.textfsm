@@ -1,0 +1,14 @@
+Value Required neighbor_hostname (.{0,20}(?<! ))
+Value Required local_interface (\S+)
+Value Required neighbor_interface (\S+)
+
+Start
+  ^Device.*ID -> LLDP
+  # Capture time-stamp if vty line has command time-stamping turned on
+  ^Load\s+for\s+
+  ^Time\s+source\s+is
+
+LLDP
+  ^${neighbor_hostname}\s*${local_interface}\s+\d+\s+\d+\s+${neighbor_interface} -> Record
+  ^${neighbor_hostname}
+  ^\s+${local_interface}\s+\d+\s+\d+\s+${neighbor_interface} -> Record
