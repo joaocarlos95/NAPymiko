@@ -11,6 +11,7 @@
         {% if "voice_vlan" in interface %}
             switchport voice vlan {{ interface.voice_vlan }}
         {% endif %}
+        spanning-tree bpduguard enable
     {% else %}
         {% if interface.data_vlan is iterable and (interface.data_vlan is not string and interface.data_vlan is not mapping) -%}
             switchport trunk allowed vlan {{ interface.data_vlan | join(',') }}
