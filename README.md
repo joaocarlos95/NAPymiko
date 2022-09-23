@@ -4,11 +4,7 @@ this code blablabla
 
 ## Dependencies																				
 1. Install [Python3](https://www.python.org/downloads/)
-2. Install python3 libraries via command line:
-  ```
-  pip3 install pykeepass
-  pip3 install netmiko
-  ```
+2. Install requirements using: ``` pip3 install -r requirements.txt ```
   
 ## Structure
   ```
