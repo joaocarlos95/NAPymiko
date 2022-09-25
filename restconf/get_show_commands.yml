@@ -1,0 +1,20 @@
+---
+- name: Issue show commands
+  hosts: sandbox
+  connection: local
+  tasks:
+    - name: Show ip interfaces brief
+      ios_command:
+        commands:
+          - show ip int brief
+        provider:
+          host: 1.1.1.1
+          port: 8181
+          authorize: yes
+          username: cisco
+          password: cisco
+      register: if_data
+
+    - name: Interfaces output
+      debug:
+        var: if_data['stdout_lines'][0]
