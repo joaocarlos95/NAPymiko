@@ -1,0 +1,14 @@
+---
+- name: Create loopback payload from template
+  hosts: sanbox
+  connection: local
+  tasks:
+    - name: Get some configs
+      restconf_get: 
+        content: configs
+        output: json
+        path: /data/ietf-interfaces:interfaces
+      register: dataout
+    
+    - name: print output
+      debug: msg="{{ dataout }}"
