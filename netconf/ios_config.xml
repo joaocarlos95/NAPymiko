@@ -1,0 +1,9 @@
+<config>
+    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+            <name>{interface_name}</name>
+            <description>{interface_description}</description>
+            <enable>{interface_enabled}</enable>
+        </interface>
+    </interfaces>
+</config>
