@@ -1,0 +1,12 @@
+{
+    "Neighbors (CDP)": {
+        "cisco_ios": "show cdp neighbors detail",
+        "cisco_nxos": "show cdp neighbors detail",
+        "cisco_wlc": "show cdp neighbors detail"
+    },
+    "Neighbors (LLDP)": {
+        "cisco_ios": "show lldp neighbors detail",
+        "cisco_nxos": "show lldp neighbors detail",
+        "alcatel_aos": "show lldp remote-system"
+    }
+}

@@ -1,0 +1,32 @@
++-----------------------------------------------------------------------------------------------------------+
+| CLIENT INFORMATION																						|
++-----------------------------------------------------------------------------------------------------------+
+ Root Directory: directory where the script output will be placed
+	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
+
+ Client Name: name of the client (output of the script is saved in a folder with the client name)
+	> Recuperar Portugal
+
+
++-----------------------------------------------------------------------------------------------------------+
+| KEEPASS INFORMATION 																						|
++-----------------------------------------------------------------------------------------------------------+
+ Keepass Database: directory where the keepass database is stored
+	> C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/Credentials.kdbx
+
+ NOTE: if not applicable, delete this part and add to the device_list.csv file the username
+	   and password for each device
+
+
++-----------------------------------------------------------------------------------------------------------+
+| INFORMATION TO BE COLLECTED																				|
++-----------------------------------------------------------------------------------------------------------+
+ [X] Neighbors (CDP)
+
+ [ ] Configuration
+ [ ] Information
+ [ ] Inventory
+ [?] Neighbors (LLDP)																						| Adicionar o show_lldp_neighbors para se obter mais alguma informação
+ [?] Interfaces Information																					| Adicionar as SVIs/Port-Channels e respetivos endereços IPs
+ [?] Interfaces Statistics 																					| Tratar da informação toda
+ [ ] Custom Commands
