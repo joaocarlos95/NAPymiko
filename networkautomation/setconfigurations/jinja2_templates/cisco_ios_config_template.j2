@@ -1,6 +1,7 @@
 !
 hostname {{ device.hostname }}
-username warpcom privilege 15 algorithm-type scrypt secret Warpcom.2022
+username {{ username.name }} privilege 15 algorithm-type scrypt secret {{ username.password }}
+enable algorithm-type scrypt secret {{ device.enable_secret }}
 !
 aaa new-model
 aaa authentication login default {{ device.aaa_default_method_list | default("local"}}
@@ -9,8 +10,7 @@ aaa authorization exec default {{ device.aaa_default_method_list | default("loca
 aaa authorization console
 aaa authorization config-commands
 !
-crypto key generate rsa general-keys modulus 2048
-!
+ip domain-name {{ device.domain_name }}
 no ip domain lookup
 no ip http server
 {% if "http" in device.authentication_methods %}
@@ -18,7 +18,7 @@ no ip http server
     ip http authentication aaa
 {% endif %}
 !
-domain-name {{ device.domain_name }}
+crypto key generate rsa general-keys modulus 2048
 !
 {% include "cisco_ios_vlans.j2" %}
 !
@@ -31,10 +31,13 @@ domain-name {{ device.domain_name }}
 !
 line con 0
     logging synchronous
+    login authentication default
 line vty 0 4
     logging synchronous
+    login authentication default
     transport input ssh
 line vty 5 15
     logging synchronous
+    login authentication default
     transport input ssh
 !
