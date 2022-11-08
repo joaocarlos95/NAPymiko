@@ -1,12 +1,34 @@
 {
+    "Configuration": {
+        "textfsm": false,
+        "commands": {
+            "cisco_ios": ["show running-config"],
+            "cisco_nxos": ["show running-config"],
+            "alcatel_aos": ["show configuration snapshot"]    
+        }
+    },
     "Neighbors (CDP)": {
-        "cisco_ios": "show cdp neighbors detail",
-        "cisco_nxos": "show cdp neighbors detail",
-        "cisco_wlc": "show cdp neighbors detail"
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show cdp neighbors detail"],
+            "cisco_nxos": ["show cdp neighbors detail"],
+            "cisco_wlc": ["show cdp neighbors detail"]    
+        }
     },
     "Neighbors (LLDP)": {
-        "cisco_ios": "show lldp neighbors detail",
-        "cisco_nxos": "show lldp neighbors detail",
-        "alcatel_aos": "show lldp remote-system"
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show lldp neighbors detail"],
+            "cisco_nxos": ["show lldp neighbors detail"],
+            "alcatel_aos": ["show lldp remote-system"]
+        }
+    },
+    "Network Diagram": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show cdp neighbors detail"],
+            "cisco_nxos": ["show cdp neighbors detail"],
+            "cisco_wlc": ["show cdp neighbors detail"]    
+        }
     }
 }

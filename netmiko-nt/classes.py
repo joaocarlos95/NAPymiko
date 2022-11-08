@@ -4,15 +4,17 @@ import csv
 import inspect
 import os
 import serial.tools.list_ports
+import threading
 
 from datetime import date
+from N2G import yed_diagram
 from netmiko import ConnectHandler, file_transfer
 from netmiko.utilities import get_structured_data
 from pykeepass import PyKeePass
 
 
-os.environ['NTC_TEMPLATES_DIR'] = os.path.join(os.path.dirname(__file__), './ntc-templates/ntc_templates/templates')
-
+os.environ['NTC_TEMPLATES_DIR'] = os.path.join(os.path.dirname(__file__), './submodule/ntc-templates/ntc_templates/templates')
+os.environ['N2G_DIR'] = os.path.join(os.path.dirname(__file__), './submodule/N2G')
 
 class Client:
 
@@ -111,8 +113,56 @@ class Client:
 
         for info, output_parsed in textfsm_output.items(): self.write_csv(output_parsed, filename=info)
 
+    def generate_diagram(self):
+        ''' Generate network diagram in drawio format, based on CDP neighbors '''
+
+        diagram = yed_diagram()
+        graph = {
+            'nodes': [],
+            'links': []
+        }
+        
+        for device in self.device_list:
+            graph['nodes'].append({
+                'id': device.ip_address, 
+                'top_label': device.hostname
+            })
+            
+            for command in device.command_list:
+                if 'Network Diagram' in command.info:
+                    for neighbor in command.output_parsed:
+                        print(command.output_parsed)
+                        graph['nodes'].append({
+                            'id': neighbor['management_ip'],
+                            'top_label': neighbor['destination_host'],
+                            'bottom_label': neighbor['platform'],
+                            'description': f"capabilities: {neighbor['capabilities']}"
+                        })
+                        graph['links'].append({
+                            'source': device.ip_address, 
+                            'target': neighbor['management_ip'],
+                            'src_label': neighbor['local_port'],
+                            'trgt_label': neighbor['remote_port']
+                        })
+
+        diagram.from_dict(graph)
+        diagram.layout(algo='tree')
+
+        print('[>] Generating Network Diagram')
+        current_datetime = date.today().strftime('%Y%m%d')
+        diagram.dump_file(filename=f"[{current_datetime}] Network Diagram.graphml", folder=f"{self.dir}/outputfiles")
+    
     def run(self):
         ''' Start getting information for the client devices '''
+        
+        # thread_list = []
+        # for device in self.device_list: 
+        #     thread = threading.Thread(target=device.run(), args=())
+        #     thread.setDaemon(True)
+        #     thread.start()
+        #     thread_list.append(thread)
+        
+        # for thread in thread_list: thread.join()
 
         for device in self.device_list: device.run()
         self.generate_output_parsed()
@@ -279,11 +329,12 @@ class Device():
 
 class Commands():
 
-    def __init__(self, device, info, command):
+    def __init__(self, device, info, command, textfsm):
         self.device = device
         self.info = info
         self.command = command
         self.output = None
+        self.textfsm = textfsm
         self.output_parsed = None
         self.status = None
 
@@ -315,7 +366,10 @@ class Commands():
                 print(f"[>] Running show command: {self.command}")
                 self.output = self.device.connection.send_command(self.command, delay_factor=10, read_timeout=600)
                 self.output_parsed = get_structured_data(self.output, platform=self.device.vendor_os, command=self.command)
-                self.status = 'Done' if type(self.output_parsed) == list else 'Error parsing the output'
+
+                if type(self.output_parsed) == list: self.status = 'Done'
+                elif 'Invalid input detected' in self.output: self.status = 'Command not found'
+                elif type(self.output_parsed) == str and self.textfsm: self.status = 'Error parsing the output'
            
         except Exception as exception:
                 self.status = exception
