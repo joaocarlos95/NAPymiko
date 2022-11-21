@@ -13,34 +13,37 @@ sys.path.append(parent)
 from classes import Device
 from concurrent.futures import ProcessPoolExecutor, wait
 
-DEVICE_LIST = "C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/01. Clientes/Vieira de Almeida/04. Automation/inputfiles/device_list.csv"
-UPGRADE_LIST = "C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/01. Clientes/Vieira de Almeida/04. Automation/inputfiles/upgrade.json"
-BASE_DIR = "C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/03. File Server/02. Switches"
+# CLIENT = "Warpcom"
+
+# DEVICE_LIST = f"C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/01. Clientes/{CLIENT}/04. Automation/inputfiles/device_list.csv"
+# UPGRADE_LIST = "C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/01. Clientes/{CLIENT}/04. Automation/inputfiles/upgrade.json"
+# BASE_DIR = "C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/03. File Server/02. Switches"
 
 MAX_THREADS = 8
 
 def main(device):
 
-        device = Device(device['platform'], device['ip_address'], device['username'], device['password'], enable_secret="cisco@vda")
-        device.ssh_connect()
+        # device = Device(device['vendor_os'], device['ip_address'], device['username'], device['password'], enable_secret="cisco@vda")
+        # device.ssh_connect()
 
-        show_version = device.run_command('show version', textfsm=True)[0]
-        show_file_systems = device.run_command('show file systems', textfsm=True)
+        # show_version = device.run_command('show version', textfsm=True)[0]
+        # show_file_systems = device.run_command('show file systems', textfsm=True)
 
-        for switch_model in show_version['hardware']:
-            index = show_version['hardware'].index(switch_model)
+        # for switch_model in show_version['hardware']:
+        #     index = show_version['hardware'].index(switch_model)
             
-            image_target_version = ios_list[show_version['hardware'][index]]['target_version']
-            image_filename = ios_list[show_version['hardware'][index]]['image']
-            image_space = ios_list[show_version['hardware'][index]]['space']
-            image_md5 = ios_list[show_version['hardware'][index]]['md5']
+        #     image_target_version = ios_list[show_version['hardware'][index]]['target_version']
+        #     image_filename = ios_list[show_version['hardware'][index]]['image']
+        #     image_space = ios_list[show_version['hardware'][index]]['space']
+        #     image_md5 = ios_list[show_version['hardware'][index]]['md5']
 
-            # Add all used flash memories to a dict[free_space]
-            flash_list = {}
-            for flash in show_file_systems.split('\n'):
-                flash_disk = re.search('flash:|flash-\d:|flash\d:', flash)
-                if flash_disk: flash_list[flash_disk.group()] = flash.split()[2]
+        #     # Add all used flash memories to a dict[free_space]
+        #     flash_list = {}
+        #     for flash in show_file_systems.split('\n'):
+        #         flash_disk = re.search('flash:|flash-\d:|flash\d:', flash)
+        #         if flash_disk: flash_list[flash_disk.group()] = flash.split()[2]
 
+            print(flash_list)
             for flash, flash_free_space in flash_list.items():
                 # Verify space on disk
                 # Enable scp server on switch and transfer new image
@@ -52,8 +55,9 @@ def main(device):
                             if current_image != dir_files['name'] and '.bin' in dir_files['name']:
                                 device.delete_file(dir_files['name'], file_system=flash)
 
-                    device.run_command('ip scp server enable', config_mode=True)
-                    device.transfer_file(f"{BASE_DIR}/", flash, image_filename, image_filename)
+                    #copiar via ftp https://stackoverflow.com/questions/12613797/python-script-uploading-files-via-ftp
+                    #device.run_command('ip scp server enable', config_mode=True)
+                    #device.transfer_file(f"{BASE_DIR}/", flash, image_filename, image_filename)
 
                 else:
                     print(f"[!] File already exists: {flash}{image_filename}")
@@ -61,6 +65,35 @@ def main(device):
             #flash = list(filter(re.compile('\D+\:').match, flash_list.keys()))[0]
             #device.upgrade(image_filename, file_system=flash)
 
+'''
+
+    1. verificar se a imagem já lá está
+    2. verificar espaço
+        2.1 se espaço Ok -> copy
+        2.2 se espaço NOk -> delete unused
+            2.2.1 verificar espaço
+                2.2.1.1 se espaço Ok -> copy
+                2.2.1.2 se espaço NOk -> erro
+    3. copy
+    4. hash
+    5. validar hash
+        5.1 se hash ok -> ok
+        5.2 se não ok
+            5.2.1 delete imagem -> error (fazer manualmente)
+    6. correr aqueles comandos e guardar num ficheiro .txt (append) 
+    7. show tech para flash
+    8. copiar show tech para ftp
+    9. gerar report com tudo o que correu bem (a nivel de hash, copia, etc)
+    10. gerar report dos comandos (ok e unsupported)
+
+    terça-feira
+        18 switches
+
+    servidor (172.26.0.1) admin superadmin
+    2960 e 35XX é preciso de copiar as imagens para todas as flash
+    9k e 
+
+'''
 
 def get_list_from_csv(pathname):
     ''' Get list from a csv file

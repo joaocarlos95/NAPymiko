@@ -21,13 +21,13 @@
 +-----------------------------------------------------------------------------------------------------------+
 | INFORMATION TO BE COLLECTED																				|
 +-----------------------------------------------------------------------------------------------------------+
- [ ] Configuration
+ [X] Configuration
+ [ ] Device Information
  [ ] Neighbors (CDP)
  [ ] Neighbors (LLDP)
  [X] Network Diagram
  
 
- [ ] Information
  [ ] Inventory
  [?] Interfaces Information																					| Adicionar as SVIs/Port-Channels e respetivos endereços IPs
  [?] Interfaces Statistics 																					| Tratar da informação toda

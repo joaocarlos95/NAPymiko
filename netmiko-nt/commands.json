@@ -7,6 +7,26 @@
             "alcatel_aos": ["show configuration snapshot"]    
         }
     },
+    "Device Information": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show version"],
+            "cisco_nxos": ["show version"]
+        }
+    },
+    "Device Directory": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["dir"],
+            "cisco_nxos": ["dir"]
+        }
+    },
+    "File System": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show file system"]
+        }
+    },
     "Neighbors (CDP)": {
         "textfsm": true,
         "commands": {

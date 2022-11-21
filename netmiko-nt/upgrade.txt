@@ -5,30 +5,23 @@
 	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
 
  Client Name: name of the client (output of the script is saved in a folder with the client name)
-	> Câmara Municipal do Seixal
+	> Warpcom
 
- Device List: file with all the ip_address of the devices and respective credentials
-	> device_list.csv
+ FTP Server: designation of the FTP server in the following format: user:pass@ip_address/path/
+	> admin:superadmin@172.26.0.1/
 
 
 +-----------------------------------------------------------------------------------------------------------+
 | KEEPASS INFORMATION 																						|
 +-----------------------------------------------------------------------------------------------------------+
- Keepass Folder1: folder where the keepass database is stored
-	> C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom
-
- Keepass Database1: name of the keepass database
-	> Credentials.kdbx
+ Keepass Database: directory where the keepass database is stored
+	> C:/Users/joao.costa/OneDrive - Warpcom Services S.A/Warpcom/Credentials.kdbx
 
  NOTE: if not applicable, delete this part and add to the device_list.csv file the username
 	   and password for each device
 
 
 +-----------------------------------------------------------------------------------------------------------+
-| OTHER INFORMATION 																						|
+| INFORMATION TO BE COLLECTED																				|
 +-----------------------------------------------------------------------------------------------------------+
- Custom Configuration: name of the file that has the configuration to apply to the network device
-	> configuration.txt
-
- Connection Method: method of connection (SSH, Telnet, Serial)
-	> Serial
+ [X] Transfer Image

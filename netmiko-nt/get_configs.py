@@ -45,12 +45,13 @@ if __name__ == '__main__':
     with open(f"{os.path.dirname(__file__)}/commands.json", 'r', encoding='utf-8') as commands: command_list = json.load(commands)
 
     client = Client(root_dir, client_name, keepass_db=keepass_db, keepass_pwd=keepass_pwd)
+    client.get_device_list()
     for device in client.device_list:
         for info, commands in command_list.items():
             if info in get_configs_info:
                 for command in commands['commands'][device.vendor_os]:
-                        command = Commands(device, info, command, commands['textfsm'])
-                        device.command_list.append(command)
+                    command = Commands(device, info, command, commands['textfsm'])
+                    device.command_list.append(command)
 
     client.run()
     client.generate_report()
