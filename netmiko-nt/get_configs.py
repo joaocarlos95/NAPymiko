@@ -6,7 +6,7 @@ import sys
 import time
 
 from classes import Client
-from classes import Commands
+from classes import Command
 
 
 def raise_exception(exception): sys.exit("[!] {}".format(exception))
@@ -34,7 +34,7 @@ if __name__ == '__main__':
                 next_line = file.readline()
                 keepass_db = next_line.split('>')[1].strip() if '>' in next_line and len(set(next_line)) > 2 and '.kdbx' in next_line else raise_exception('Keepass database not specified')
                 # keepass_pwd = input("[>] Keepass password: ")
-                keepass_pwd = 'HOX265huq!'
+                keepass_pwd = 'HOX265huq#'
                 
             elif '[x]' in line or '[X]' in line:
                 info_requested = line.split('] ')[1].rstrip()
@@ -42,19 +42,12 @@ if __name__ == '__main__':
             
             line = file.readline()
 
-    with open(f"{os.path.dirname(__file__)}/commands.json", 'r', encoding='utf-8') as commands: command_list = json.load(commands)
-
     client = Client(root_dir, client_name, keepass_db=keepass_db, keepass_pwd=keepass_pwd)
-    client.get_device_list()
     for device in client.device_list:
-        for info, commands in command_list.items():
-            if info in get_configs_info:
-                for command in commands['commands'][device.vendor_os]:
-                    command = Commands(device, info, command, commands['textfsm'])
-                    device.command_list.append(command)
+        device.get_configs(get_configs_info)
+        device.disconnect()
 
-    client.run()
-    client.generate_report()
+    # client.generate_report()
 
     if 'Network Diagram' in get_configs_info:
         client.generate_diagram()

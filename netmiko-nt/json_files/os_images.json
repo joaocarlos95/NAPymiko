@@ -1,7 +1,12 @@
 {
 	"cisco_ios": {
 		"C9300-48UXM": {
-			"Bengaluru-17.6.4": {
+			"17.6.3": {
+				"image": "cat9k_iosxe.17.06.03.SPA.bin",
+				"md5": "4637c5c6767fee76c8b0cec1b7370cd3",
+				"space": 1017259730
+			},
+			"17.6.4": {
 				"image": "cat9k_iosxe.17.06.04.SPA.bin",
 				"md5": "dae85d113b3438d4f00e49ccdd1ec611",
 				"space": 1017587860

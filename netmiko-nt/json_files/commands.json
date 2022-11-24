@@ -22,9 +22,15 @@
         }
     },
     "File System": {
-        "textfsm": true,
+        "textfsm": false,
         "commands": {
             "cisco_ios": ["show file system"]
+        }
+    },
+    "MD5 Checksum": {
+        "textfsm": false,
+        "commands": {
+            "cisco_ios": ["verify /md5"]
         }
     },
     "Neighbors (CDP)": {
