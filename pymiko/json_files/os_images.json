@@ -13,28 +13,28 @@
 			}
 		},
 		"WS-2960-24LC-S": {
-			"15.0.2-SE11": {
+			"15.0(2)SE11": {
 				"image": "c2960-lanlitek9-mz.150-2.SE11.bin",
 				"md5": "885ed3dd7278baa11538a51827c2c9f8",
 				"space": 10196782
 			}
 		},
 		"WS-C2960-24PC-L": {
-			"15.0.2-SE11": {
+			"15.0(2)SE11": {
 				"image": "c2960-lanbasek9-mz.150-2.SE11.bin",
 				"md5": "81064ff93a36442ed4f5ad6be86c8cea",
 				"space": 11832946
 			}
 		},
 		"WS-C2960-48TC-L": {
-			"15.0.2.SE11": {
+			"15.0(2)SE11": {
 				"image": "c2960-lanbasek9-mz.150-2.SE11.bin",
 				"md5": "81064ff93a36442ed4f5ad6be86c8cea",
 				"space": 11832946
 			}
 		},
 		"WS-C2960C-8TC-L": {
-			"15.2.7E6": {
+			"15.2(7)E6": {
 				"image": "c2960c405-universalk9-mz.152-7.E6.bin",
 				"md5": "b94d25cba08d132551cb64a4fbe0a237",
 				"space": 18187264
@@ -59,22 +59,29 @@
 				"space": 16250880
 			}
 		},
+		"WS-C2960L-24PS-LL": {
+			"15.2(7)E6": {
+				"image": "c2960l-universalk9-mz.152-7.E6.bin",
+				"md5": "fbfddf7de5dc788422b7177c419278d6",
+				"space": 16250880
+			}
+		},
 		"WS-C2960S-24PS-L": {
-			"15.2.2E9": {
+			"15.2(2)E9": {
 				"image": "c2960s-universalk9-mz.152-2.E9.bin",
 				"md5": "ea604d030b378b6c5c3dda3d501ac2f5",
 				"space": 16800768
 			}
 		},
 		"WS-C2960X-24PS-L": {
-			"15.2.7E6": {
+			"15.2(7)E6": {
 				"image": "c2960x-universalk9-mz.152-7.E6.bin",
 				"md5": "2adb9ecfefb635ef7814c8d48e3f3a4a",
 				"space": 26777600
 			}
 		},
 		"WS-C2960X-48FPS-L": {
-			"15.2.7E6": {
+			"15.2(7)E6": {
 				"image": "c2960x-universalk9-mz.152-7.E6.bin",
 				"md5": "2adb9ecfefb635ef7814c8d48e3f3a4a",
 				"space": 26777600
