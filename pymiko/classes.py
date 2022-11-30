@@ -14,10 +14,12 @@ import yaml
 
 from datetime import date
 from jinja2 import Environment, FileSystemLoader
+from multiprocessing import Process
 from N2G import yed_diagram
 from netmiko import ConnectHandler, file_transfer
 from netmiko.utilities import get_structured_data
 from pykeepass import PyKeePass
+from random import randrange
 
 os.environ['NTC_TEMPLATES_DIR'] = os.path.join(os.path.dirname(__file__), 
     './submodule/ntc-templates/ntc_templates/templates')
@@ -41,10 +43,12 @@ class Client:
         self.keepass_db = keepass_db
         self.keepass_pwd = keepass_pwd
         self.device_list = []
+        self.dev_list = []
         self.upgrade_list = None
         self.ftp_server = ftp_server
+        self.report = None
 
-        self.get_device_list()
+        self.get_devices_from_csv()
 
     # def generate_config(self):
 
@@ -98,40 +102,72 @@ class Client:
     #     current_datetime = date.today().strftime('%Y%m%d')
     #     diagram.dump_file(filename=f"[{current_datetime}] Network Diagram.graphml", folder=f"{self.dir}/outputfiles")
 
-    # def generate_output_parsed(self):
-    #     ''' Merge textfsm output from all devices in a single .csv file '''
+    def generate_config_parsed(self):
+        ''' Merge textfsm output from all devices in a single .csv file '''
 
-    #     textfsm_output = {}
-    #     for device in self.device_list:
-    #         for command in device.command_list:
-    #             for output_parsed in command.output_parsed:
-    #                 if type(output_parsed) != str:
-    #                     textfsm_output.setdefault(command.info, [])
-    #                     textfsm_output[command.info].append(({
-    #                         'device_hostname': device.hostname,
-    #                         'device_ip_address': device.ip_address,
-    #                         **output_parsed
-    #                     }))
+        print('[>] Generating configuration parsed report')
+        textfsm_output = {}
+        for device in self.report:
+            for command in device['command_list']:
+                if command['output_parsed'] != None:
+                    for output_parsed in command['output_parsed']:
+                        if type(output_parsed) != str:
+                            textfsm_output.setdefault(command['info'], [])
+                            textfsm_output[command['info']].append(({
+                                'device_hostname': device['hostname'],
+                                'device_ip_address': device['ip_address'],
+                                **output_parsed
+                            }))
 
-    #     for info, output_parsed in textfsm_output.items(): self.write_csv(output_parsed, filename=info)
+        for info, output_parsed in textfsm_output.items():
+            self.write_csv(output_parsed, filename=info)
 
-    # def generate_report(self):
-    #     ''' Generate report of commands executed '''
+    def generate_config_report(self):
+        ''' Generate report for commands executed on the device'''
 
-    #     report = []
-    #     for device in self.device_list:
-    #         for command in device.command_list:
-    #             report.append({
-    #                 'device_hostname': device.hostname,
-    #                 'device_ip_address': device.ip_address,
-    #                 'info': command.info,
-    #                 'command': command.command,
-    #                 'status': command.status
-    #             })
+        print('[>] Generating configuration report')
+        report = []
+        for device in self.report:
+            # For each command runned on a device, create a new .csv row
+            if device['command_list'] == []:
+                report.append({
+                    'device_hostname': device['hostname'],
+                    'device_ip_address': device['ip_address'],
+                    'info': '',
+                    'command': '',
+                    'status': device['status']
+                })
+            for command in device['command_list']:
+                report.append({
+                    'device_hostname': device['hostname'],
+                    'device_ip_address': device['ip_address'],
+                    'info': command['info'],
+                    'command': command['command'],
+                    'status': command['status']
+                })
 
-    #     self.write_csv(report, filename='Report')
+        self.write_csv(report, filename='Configuration Report')
 
-    def get_device_list(self):
+    def generate_upgrade_report(self):
+        ''' Generate report for devices upgrade process '''
+
+        print('[>] Generating upgrade report')
+        report = []
+        for device in self.report:
+            # For each command runned on the device, create a new .csv row
+            for upgrade in device['upgrade_list']:
+                report.append({
+                    'device_hostname': device['hostname'],
+                    'device_ip_address': device['ip_address'],
+                    'step': upgrade['step'],
+                    'current_release': upgrade['current_release']['version'],
+                    'target_release': upgrade['target_release']['version'],
+                    'status': upgrade['status']
+                })
+
+        self.write_csv(report, filename='Upgrade Report')
+
+    def get_devices_from_csv(self):
         ''' Get device list from .csv file and create a device object with the information
             collected from the .csv and keepass databse (if applicable) '''
 
@@ -168,8 +204,8 @@ class Client:
                                     }
                                 else:
                                     raise exception
-
-                device = Device(self, row['vendor_os'], row['ip_address'], credentials)
+                
+                device = Device(self, *[row['vendor_os'], row['ip_address'], credentials])
                 self.device_list.append(device)
 
     # TO BE DONE: Get enable secret from keepass database
@@ -212,22 +248,17 @@ class Client:
         }
         return credentials
 
-    # def run(self):
-    #     ''' Start getting information for the client devices '''
-        
+    def write_csv(self, data, filename):
+        ''' Write data in a .csv file ''' 
 
+        # Create .csv filename
+        current_datetime = date.today().strftime('%Y%m%d')
+        path = f"{self.dir}/outputfiles/[{current_datetime}] {filename}.csv"
 
-    #     for device in self.device_list:
-    #         device.run()
-    #         device.connect()
-
-    # def write_csv(self, data, filename):
-
-    #     current_datetime = date.today().strftime('%Y%m%d')
-    #     with open(f"{self.dir}/outputfiles/[{current_datetime}] {filename}.csv", 'w', newline='', encoding='utf-8') as file:  
-    #         dict_writer = csv.DictWriter(file, data[0].keys())
-    #         dict_writer.writeheader()
-    #         dict_writer.writerows(data)
+        with open(path, 'w', newline='', encoding='utf-8') as file:  
+            dict_writer = csv.DictWriter(file, data[0].keys())
+            dict_writer.writeheader()
+            dict_writer.writerows(data)
 
 
 class Device():
@@ -241,14 +272,11 @@ class Device():
         self.ip_address = ip_address
         self.credentials = credentials
         self.connection = None
-        self.configuration = None
         self.command_list = []
         self.upgrade_list = []
-
-        # Connect to the device
-        self.connect()
+        self.status = None
     
-    def connect(self):
+    def connect(self, method='ssh'):
         ''' Connect to the device in the following order: SSH, Telnet '''
 
         def ssh_connect():
@@ -268,25 +296,54 @@ class Device():
             self.connection = ConnectHandler(
                 device_type = f"{self.vendor_os}_telnet",
                 ip = self.ip_address,
-                username = self.username,
-                password = self.password,
+                username = self.credentials['username'],
+                password = self.credentials['password'],
                 banner_timeout = 10,
             )
 
         try:
             # Connect to the device through SSH
-            ssh_connect()
-        except Exception as exception:
-            if '[WinError 10061] No connection could be made because the target machine actively \
-                refused it' in str(exception):
-                try:
-                    # Connect to the device through Telnet
-                    telnet_connect()              
-                except Exception as exception:
-                    print(f"[!] Couldn't connect to the device with IP {self.ip_address}")
-                    raise Exception(f"[!] Couldn't connect to the device with IP {self.ip_address}")
+            if method == 'ssh':
+                ssh_connect()
+            # Connect to the device through Telnet
             else:
-                raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception)
+                telnet_connect()
+        except Exception as exception:
+            if 'No connection could be made because the target machine actively refused it' in str(exception):
+                # Connect to the device through Telnet
+                if method == 'ssh':
+                    self.connect('telnet')
+                else:          
+                    print(f"[!] Connection refused by device with IP {self.ip_address}")
+                    self.status = 'Device refused connection'
+                    return
+            elif 'TCP connection to device failed' in str(exception):
+                if method == 'ssh':
+                    self.connect('telnet')
+                else:
+                    print(f"[!] TCP connection failed to the device with IP {self.ip_address}")
+                    self.status = 'TCP connection failed'
+                    return
+            elif 'Authentication to device failed' in str(exception) or 'Login failed' in str(exception):
+                print(f"[!] Authentication failed to the device with IP {self.ip_address}")
+                self.status = 'Authentication failed'
+                return
+            elif 'must be exactly 1024, 2048, 3072, or 4096 bits long' in str(exception):
+                if method == 'ssh':
+                    self.connect('telnet')
+                else:
+                    print(f"[!] Issue with the SSH keys in the device with IP {self.ip_address}")
+                    self.status = 'Issue with the SSH keys'
+                    return
+            elif 'A connection attempt failed' in str(exception) or 'No existing session' in str(exception):
+                print(f"[!] Couldn't connect to the device with IP {self.ip_address}")
+                self.status = "Couldn't connect"
+                return
+            else:
+                raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.ip_address)
+
+        # If no connection could be made exit
+        if self.connection == None: return
 
         # If not in enable secret mode, enter the enable secret password 
         if not self.connection.check_enable_mode():
@@ -295,6 +352,7 @@ class Device():
 
         # Get the hostname of the device 
         self.hostname = self.connection.find_prompt()[:-1]
+        self.status = 'Connected'
         print(f"[>] Connected to {self.hostname} ({self.ip_address})")
 
     def create_command(self, info, txt_command, textfsm):
@@ -326,6 +384,10 @@ class Device():
     def disconnect(self):
         ''' Disconnect from the device '''
 
+        # Connection to the device couln't be mande
+        if self.connection == None: return
+
+        # Disconnect from the device
         self.connection.disconnect()
         print(f"[>] Disconnected from {self.hostname} ({self.ip_address})")
 
@@ -348,7 +410,35 @@ class Device():
                 # Create a command object and run it on the device
                 command = self.create_command(info, txt_command, COMMAND_LIST[info]['textfsm'])
                 command.run()
+    
+    def generate_report(self, report):
+        ''' Get configs report for all commands issued '''
+
+        print(f"[>] Generating report for {self.hostname} ({self.ip_address})")
+        # Transform device object in dict and remove unnecessary key/values
+        device_dict = self.__dict__.copy()
+        del device_dict['client']
+        del device_dict['credentials']
+        del device_dict['connection']
+
+        command_list = []
+        for command in self.command_list:
+            # Transform command object in dict and remove unnecessary key/values
+            command_list_dict = command.__dict__.copy()
+            del command_list_dict['device']
+            command_list.append(command_list_dict)
+
+        upgrade_list = []
+        for step in self.upgrade_list:
+            # Transform command object in dict and remove unnecessary key/values
+            upgrade_list_dict = step.__dict__.copy()
+            del upgrade_list_dict['device']
+            upgrade_list.append(upgrade_list_dict)
         
+        device_dict['command_list'] = command_list
+        device_dict['upgrade_list'] = upgrade_list
+        report.append(device_dict)
+
     # def get_serial_port():
     #     ''' Get serial port to connect to the device '''
 
@@ -356,7 +446,7 @@ class Device():
     #     for port, description, _ in sorted(ports):
     #         if "USB-to-Serial Comm Port" in description: return port
     #     raise Exception("[!] Serial port not identified")
-    
+
     def md5_checksum(self, flash, file, md5sum):
         ''' Perform MD5 checksum over a file '''
 
@@ -369,29 +459,57 @@ class Device():
             return True
         else:
             return False
+    
+    def run_get_configs(self, get_configs_info, report):
+        ''' Initiate the process of acquire device information '''
+
+        # Connect to the device
+        self.connect()
+        # Get the desired configurations
+        self.get_configs(get_configs_info)
+        # Disconnect from the device
+        self.disconnect()
+        # Generate device report and append it to the shared variable
+        self.generate_report(report)           
 
     # TO BE DONE: Run the first validation commands only once
-    def run_upgrade(self, upgrade_steps):
+    def run_upgrade(self, upgrade_steps, report):
         ''' Initiate the uprade process of the device/stack devices. Upgrade steps have a specific
             order, defined in the upgrade.txt file (FIFO) '''
 
+        # Connect to the device
+        self.connect()
         # Information to be collected in advance
         for step in upgrade_steps:
             upgrade = Upgrade(self, step)
             self.upgrade_list.append(upgrade)
             upgrade.run()
+        # Disconnect from the device
+        self.disconnect()
+        # Generate device report and append it to the shared variable
+        self.generate_report(report)   
 
     def send_file(self, source, destination, file):
         ''' Copy file from source to destination '''
 
-        print(f"[>] Copying file {file} to {destination}")
-        output = self.connection.send_command(command_string=f"copy {source}{file} \
-            {destination}{file}", expect_string=r'Destination filename', strip_prompt=False, \
-                strip_command=False)
-        if "Destination filename" in output:
-            output += self.connection.send_command(command_string='\n', expect_string=r'#', \
-                strip_prompt=False, strip_command=False, read_timeout=600)
-        print(f"[>] File {file} copied to {destination}")
+        try:
+            print(f"[>] Copying file {file} to {destination}")
+            output = self.connection.send_command(command_string=f"copy {source}{file} {destination}{file}", \
+                expect_string=r'Destination filename', strip_prompt=False, strip_command=False)
+
+            if 'Destination filename' in output:
+                output += self.connection.send_command(command_string='\n', expect_string=r'#', \
+                    strip_prompt=False, strip_command=False, read_timeout=600)
+            
+            if 'Error' in output:
+                print(f"[!] File {file} not copied to {destination}")
+                raise Exception(output)
+            
+            print(f"[>] File {file} copied to {destination}")
+
+        except Exception as exception:
+            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.device.ip_address)
+
 
     # def serial_connect(self):
 
@@ -432,6 +550,11 @@ class Command():
     def run(self, config_mode=False, save_output=True):
         ''' Connect to a given device and run the requested command '''
 
+        # Connection to the device couln't be made
+        if self.device.connection == None: return
+        # Reconnect to the device, since connection was closed
+        elif not self.device.connection.is_alive(): self.device.connect()
+
         try:
             # Apply configuration on the device, entering in configuration mode
             if config_mode:
@@ -442,7 +565,11 @@ class Command():
             # Get configurations from the device
             else:
                 print(f"[>] Getting configuration: {self.command}")
-                self.output = self.device.connection.send_command(self.command, read_timeout=600)
+                if self.info == 'Configuration':
+                    read_timeout = 600
+                else:
+                    read_timeout = 100
+                self.output = self.device.connection.send_command(self.command, read_timeout=read_timeout)
                 # Parse command output from the device
                 if self.textfsm:
                     self.output_parsed = get_structured_data(self.output, \
@@ -450,15 +577,19 @@ class Command():
 
             if 'Invalid input detected' in self.output:
                 print(f"[!] Command not found: {self.command}")
-                self.status = '[!] Command not found'
+                self.status = 'Command not found'
             elif type(self.output_parsed) == str and self.textfsm:
                 print(f"[!] Error parsing the output of the command: {self.command}")
-                self.status = '[!] Error parsing the output'
+                self.status = 'Error parsing the output'
             else:
-                self.status = ['[>] Done']
+                self.status = ['Done']
            
         except Exception as exception:
-            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception)
+            if 'Pattern not detected' in str(exception):
+                print(f"[!] Pattern not detected on {self.device.ip_address} in command: {self.command}")
+                self.status = f"Error getting information from command: {self.command}"
+                return
+            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.device.ip_address)
         
         self.save_output()
 
@@ -485,11 +616,10 @@ class Upgrade():
 
     def __init__(self, device, step):
         self.device = device
-        self.upgrade_step = step
+        self.step = step
         self.current_release = None
         self.target_release = None
         self.image_integrity = None
-        self.validation_commands = []
         self.status = None
 
         self.get_current_release_info()
@@ -624,15 +754,15 @@ class Upgrade():
         ''' Perform all upgrade steps, in the correct order '''
 
         # Copy target image to the device
-        if self.upgrade_step == 'Transfer Image':
+        if self.step == 'Transfer Image':
             self.transfer_image()
 
         # Check target image integrity
-        elif self.upgrade_step == 'Verify MD5':
+        elif self.step == 'Verify MD5':
            self.verify_image_integrity()
 
-        elif self.upgrade_step == 'Pre-Validations' or self.upgrade_step == 'Post-Validations':
-            self.validations(self.upgrade_step)
+        elif self.step == 'Pre-Validations' or self.step == 'Post-Validations':
+            self.validations(self.step)
         
     #     # print(f"[>] Changing boot variable: {file_system}{filename}")
     #     # self.run_command('no boot system', config_mode=True)
@@ -666,12 +796,11 @@ class Upgrade():
 
         # Check if current image is the running image of the device
         if self.current_release['version'] in self.target_release['version']:
-            self.status = f"Device already with target release: {self.target_release['version']}"
-            print(f"[!] Device {self.device.hostname} ({self.device.ip_address})", \
-                f"already upgraded to {self.target_release['version']}")
+            print(f"[!] Device {self.device.hostname} ({self.device.ip_address}) already upgraded to {self.target_release['version']}")
+            self.status = 'Already upgraded'
             return
        
-        # Check if target image is already in all flashes
+        # Get the list of flashes that doesn't have the image on it
         flash_without_target_image = copy.deepcopy(self.device.flash)
         for flash, flash_data in self.device.flash.items():
             # Ignore flashes that already have the image
@@ -681,103 +810,74 @@ class Upgrade():
 
         # Target image already present in switch/switch stack
         if len(flash_without_target_image) == 0:
-            print(f"[>] Image {self.target_release['image']} already in:", \
-                f"{' '.join(self.device.flash.keys())}")
-            self.status = f"[>] Image {self.target_release['image']} already in:", \
-                f"{' '.join(self.device.flash.keys())}"
+            print(f"[>] Image {self.target_release['image']} already in {' '.join(self.device.flash.keys())}")
+            self.status = 'Done'
             return
 
-        # Check for the model Cisco C2960, if the image is not present in all stack members
-        if any('2960' in model for model in self.device.hardware):
-
-            # Standalone switch: Target image is not present in flash 
-            if flash_without_target_image.keys() == self.device.flash.keys() and \
-                len(self.device.flash.keys()) == 1:
-                flash = list(self.device.flash.keys())[0]
-                if self.device.flash_has_space(flash, self.target_release['space']):
-                    # Copy target image to device flash
-                    self.device.send_file(f"ftp://{self.device.client.ftp_server}", flash, \
-                        self.target_release['image'])
-                else:
-                    # Delete old images before copy target image to device flash 
-                    self.release_flash_memory(flash)
-                    # Update information of device flash
-                    self.get_directories_info()
-                    if self.device.flash_has_space(flash, self.target_release['space']):
-                        self.device.send_file(f"ftp://{self.device.client.ftp_server}", flash, \
-                            self.target_release['image'])
-                    else:
-                        print("[!] Couldn't free up some space for the target image")
-                        self.status = "Couldn't free up some space for the target image"
-
-            # Stack: Target image present in some of the members
-            elif len(flash_without_target_image.keys()) != 0 and self.target_release['mode'] == \
-                'Install':
-                flash_with_target_image = list(set(self.device.flash.keys()) - \
-                    set(flash_without_target_image.keys()))[0]
-                for flash in flash_without_target_image:
-                    if self.device.flash_has_space(flash, self.target_release['space']):
-                        # Copy target image to device flash
-                        self.device.send_file(flash_with_target_image, flash, \
-                            self.target_release['image'])
-                    else:
-                        # Delete old images before copy target image to device flash 
-                        self.release_flash_memory(flash)
-                        # Update information of device flash
-                        self.get_directories_info()
-                        if self.device.flash_has_space(flash, self.target_release['space']):
-                            self.device.send_file(flash_with_target_image, flash, \
-                                self.target_release['image'])
-                        else:
-                            print("[!] Couldn't free up some space for the target image")
-                            self.status = "Couldn't free up some space for the target image"
+        # Upload image to standalone switch
+        if len(self.device.hardware) == 1:
+            flash = list(self.device.flash.keys())[0]
+            self.upload_image(flash)
+        # Upload image to switch stack
         else:
-            # Check if device is standalone
-            if len(self.device.hardware) == 1 and self.current_release['mode'] == 'Install':
-                try:
-                    flash = list(self.device.flash.keys())[0]
-                    # Delete old images before copy target image to device flash 
-                    self.release_flash_memory(flash)
-                    # Update information of device flash
-                    self.get_directories_info()
-                    if self.device.flash_has_space(flash, self.target_release['space']):
-                        # Copy target image to device flash
-                        self.device.send_file(f"ftp://{self.device.client.ftp_server}", flash, \
-                            self.target_release['image'])
-                    else:
-                        print("[!] Couldn't free up some space for the target image")
-                        self.status = "Couldn't free up some space for the target image"
-                
-                except Exception as exception:
-                    raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception)
+            print("NEEDS TO BE DONE - TRANSFER IMAGE FOR STACK DEVICES")
+            # Process to transfer image to all members in cisco_os models 2960
+            if self.device.vendor_os == 'cisco_ios' and any('2960' in model for model in \
+                self.device.hardware):
+                for flash in flash_without_target_image:
+                     self.upload_image(flash)
+            # Process to transfer image to remaining switch/models
+            else:
+                # PASSAR IMAGEM SÓ PARA A FLASH PRINCIPAL FLASH: OR BOOTFLASH:
+                pass
+        
+        # Update status of image transfer
+        if self.status == None: self.status = 'Done'
+
+    def upload_image(self, flash):
+        ''' Upload target image to the switch, performing all necessary validations in advance ''' 
+
+        try:
+            # Delete old images before copy target image to device flash 
+            self.release_flash_memory(flash)
+            # Update information of device flash
+            self.get_directories_info()
+            if self.device.flash_has_space(flash, self.target_release['space']):
+                # Copy target image to device flash
+                self.device.send_file(self.device.client.ftp_server, flash, \
+                    self.target_release['image'])
+            else:
+                print("[!] Couldn't free up some space for the target image")
+                self.status = "Couldn't free up some space for the target image"
+                    
+        except Exception as exception:
+            if 'Error opening' in str(exception):
+                self.status = f"Couln't copy image {self.target_release['image']} to {flash}"  
+                return
+
+            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception)
 
     # TO BE DONE: Validations on stack devices
     def verify_image_integrity(self):
         ''' Check MD5 integrity of target images '''
 
         # For Bundle and Install mode, verify image integrity on device flash/flashes
-        if len(self.device.hardware) == 1:
-            for flash, flash_data in self.device.flash.items():
-                if self.target_release['image'] not in flash_data['files']:
-                    # Target image is not in device flash
-                    print(f"[!] Image {self.target_release['image']} not in {flash}")
-                    self.status = f"[!] Image {self.target_release['image']} not in {flash}"
+        for flash, flash_data in self.device.flash.items():
+            if self.target_release['image'] not in flash_data['files']:
+                # Target image is not in device flash
+                print(f"[!] Image {self.target_release['image']} not in {flash}")
+                self.status = f"Image {self.target_release['image']} not in {flash}"
+                return
+            else:
+                # Run MD5 checksum of the target image
+                md5 = self.device.md5_checksum(flash, self.target_release['image'], \
+                    self.target_release['md5'])
+                if not md5:
+                # File compromised
+                    print(f"[!] MD5 NOk for image {flash}{self.target_release['image']}")
+                    self.status = 'MD5 NOk'
                     return
                 else:
-                    # Run MD5 checksum of the target image
-                    md5 = self.device.md5_checksum(flash, self.target_release['image'], \
-                        self.target_release['md5'])
-                    if not md5:
-                        # File compromised
-                        print(f"[!] Image {self.target_release['image']}", \
-                            "compromised in {flash}")
-                        self.status = f"[!] Image {self.target_release['image']} compromised ", \
-                            "in {flash}"
-                        return
-                    else:
-                        # MD5 validated
-                        print(f"[>] Image {self.target_release['image']} validated")
-                        self.status = f"[>] Image {flash}{self.target_release['image']} validated"
-
-        else:
-            print("NEEDS TO BE DONE - INTEGRITY FOR STACK DEVICES")
+                    # MD5 validated
+                    print(f"[>] MD5 Ok for image {flash}{self.target_release['image']}")
+                    self.status = 'Done'

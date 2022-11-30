@@ -1,3 +1,0 @@
-[submodule "netmiko-nt/ntc-templates"]
-	path = netmiko-nt/submodule/ntc-templates
-	url = https://github.com/networktocode/ntc-templates.git

@@ -2,11 +2,12 @@
 
 import json
 import os
+import pprint
 import sys
 import time
 
 from classes import Client
-from classes import Command
+from multiprocessing import Manager, Process
 
 
 def raise_exception(exception): sys.exit("[!] {}".format(exception))
@@ -43,11 +44,30 @@ if __name__ == '__main__':
             line = file.readline()
 
     client = Client(root_dir, client_name, keepass_db=keepass_db, keepass_pwd=keepass_pwd)
-    for device in client.device_list:
-        device.get_configs(get_configs_info)
-        device.disconnect()
+    manager = Manager()
+    report = manager.list()
 
-    # client.generate_report()
+    process_list = []
+    for devive in client.device_list:
+        # Append in a list the process of acquiring information for the device
+        process = Process(target=devive.run_get_configs, args=(get_configs_info, report))
+        process_list.append(process)
+
+    # Initiate the process of acquiring configurations for each device
+    for process in process_list:
+        process.start()
+    # Wait for each process to finish
+    for process in process_list:
+        process.join()
+
+    # Generage reports for this script
+    client.report = report
+    client.generate_config_report()
+    client.generate_config_parsed()
+
+    # Save all script output in a json file
+    with open(f"{client.dir}/outputfiles/script_output.json", "w") as outfile:
+        outfile.write(json.dumps(list(report), indent=2))
 
     if 'Network Diagram' in get_configs_info:
         client.generate_diagram()

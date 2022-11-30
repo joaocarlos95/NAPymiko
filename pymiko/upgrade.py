@@ -7,8 +7,8 @@ import sys
 import time
 
 from classes import Client
-from classes import Command
-from classes import Upgrade
+
+from multiprocessing import Manager, Process
 
 
 def raise_exception(exception): sys.exit("[!] {}".format(exception))
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     st = time.time()
 
-    with open(os.path.join(os.path.dirname(__file__), './inputfiles/upgrade.txt'), 'r', \
+    with open(os.path.join(os.path.dirname(__file__), 'upgrade.txt'), 'r', \
         encoding='utf-8') as file:     
 
         keepass_db = keepass_pwd = ftp_server = None
@@ -58,23 +58,34 @@ if __name__ == '__main__':
 
     client = Client(root_dir, client_name, keepass_db=keepass_db, keepass_pwd=keepass_pwd, \
         ftp_server=ftp_server)
-    for device in client.device_list:
-        device.run_upgrade(upgrade_steps_info)
-        device.disconnect()
+    manager = Manager()
+    report = manager.list()
 
-    # print('Execution time:', time.time() - st, 'seconds')
+    process_list = []
+    for devive in client.device_list:
+        # Append in a list the process of acquiring information for the device
+        process = Process(target=devive.run_upgrade, args=(upgrade_steps_info, report))
+        process_list.append(process)
+
+    # Initiate the process of acquiring configurations for each device
+    for process in process_list:
+        process.start()
+    # Wait for each process to finish
+    for process in process_list:
+        process.join()
+
+    # Generage reports for this script
+    client.report = report
+    client.generate_upgrade_report()
+
+    # Save all script output in a json file
+    with open(f"{client.dir}/outputfiles/script_output.json", "w") as outfile:
+        outfile.write(json.dumps(list(report), indent=2))
+
+    print('Execution time:', time.time() - st, 'seconds')
 
     '''
 
-    1. verificar se a imagem já lá está
-    2. verificar espaço
-        2.1 se espaço Ok -> copy
-        2.2 se espaço NOk -> delete unused
-            2.2.1 verificar espaço
-                2.2.1.1 se espaço Ok -> copy
-                2.2.1.2 se espaço NOk -> erro
-    3. copy
-    4. hash
     5. validar hash
         5.1 se hash ok -> ok
         5.2 se não ok
