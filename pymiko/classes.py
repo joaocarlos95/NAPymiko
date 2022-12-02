@@ -8,6 +8,7 @@ import json
 import os
 import re
 import serial.tools.list_ports
+import sys
 import threading
 import time
 import yaml
@@ -38,7 +39,7 @@ with open(f"{os.path.dirname(__file__)}/json_files/os_images.json", 'r', encodin
 class Client:
 
     def __init__(self, dir, name, keepass_db=None, keepass_pwd=None, ftp_server=None):
-        self.dir = f"{dir}/{name}/04. Automation"
+        self.dir = dir
         self.name = name
         self.keepass_db = keepass_db
         self.keepass_pwd = keepass_pwd
@@ -156,12 +157,27 @@ class Client:
         for device in self.report:
             # For each command runned on the device, create a new .csv row
             for upgrade in device['upgrade_list']:
+
+                # Authentication to the device failed
+                if 'Authentication failed' in upgrade['status']:
+                    current_release = None
+                # Devices with success login
+                else:
+                    current_release = upgrade['current_release']['version']
+                
+                # Devices not in scope
+                if upgrade['target_release'] == None:
+                    target_release = None
+                # Devices in scope
+                else:
+                    target_release = upgrade['target_release']['version']
+                
                 report.append({
                     'device_hostname': device['hostname'],
                     'device_ip_address': device['ip_address'],
                     'step': upgrade['step'],
-                    'current_release': upgrade['current_release']['version'],
-                    'target_release': upgrade['target_release']['version'],
+                    'current_release': current_release,
+                    'target_release': target_release,
                     'status': upgrade['status']
                 })
 
@@ -499,7 +515,7 @@ class Device():
 
             if 'Destination filename' in output:
                 output += self.connection.send_command(command_string='\n', expect_string=r'#', \
-                    strip_prompt=False, strip_command=False, read_timeout=600)
+                    strip_prompt=False, strip_command=False, delay_factor=20, read_timeout=1200)
             
             if 'Error' in output:
                 print(f"[!] File {file} not copied to {destination}")
@@ -508,7 +524,7 @@ class Device():
             print(f"[>] File {file} copied to {destination}")
 
         except Exception as exception:
-            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.device.ip_address)
+            raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.ip_address)
 
 
     # def serial_connect(self):
@@ -597,12 +613,8 @@ class Command():
         ''' Save in a .txt file the output of the command issued on the device '''
 
         # Load client devices information from .csv file
-        if os.path.exists(f"{self.device.client.dir}/outputfiles"):
-            os.makedirs(f"{self.device.client.dir}/outputfiles/{self.info}", exist_ok=True)
-            path = f"{self.device.client.dir}/outputfiles/{self.info}"
-        else:
-            os.makedirs(f"{os.path.dirname(__file__)}/outputfiles/{self.info}", exist_ok=True)
-            path = f"{os.path.dirname(__file__)}/outputfiles/{self.info}"
+        os.makedirs(f"{self.device.client.dir}/outputfiles/{self.info}", exist_ok=True)
+        path = f"{self.device.client.dir}/outputfiles/{self.info}"
         
         current_datetime = date.today().strftime('%Y%m%d')
         command = self.command.replace(' ', '_').replace('/', '')
@@ -621,6 +633,11 @@ class Upgrade():
         self.target_release = None
         self.image_integrity = None
         self.status = None
+
+        # Couldn't connect to the device
+        if 'Authentication failed' in self.device.status:
+            self.status = self.device.status
+            return
 
         self.get_current_release_info()
         self.get_target_release_info()
@@ -698,6 +715,10 @@ class Upgrade():
                     self.target_release.update(OS_IMAGE_LIST[self.device.vendor_os]
                         [self.device.hardware[0]][row['target_release']])
 
+        if self.target_release == None:
+            print(f"[!] Device model {self.device.hardware} not in scope")
+            self.status = 'Device model not in scope'
+
     def validations(self, validation):
         ''' Run pre validations '''
 
@@ -733,6 +754,8 @@ class Upgrade():
         if self.current_release['mode'] == 'Bundle':
             for file in self.device.flash[flash]['files']:
                 # Remove .bin files that are not the running image nor the target image
+                if self.target_release == None:
+                    return
                 if file != (self.current_release['image'] or self.target_release['image']) and \
                     file.endswith('.bin'):
                     self.device.delete_file(flash, file)
@@ -754,11 +777,11 @@ class Upgrade():
         ''' Perform all upgrade steps, in the correct order '''
 
         # Copy target image to the device
-        if self.step == 'Transfer Image':
+        if self.step == 'Transfer Image' and self.target_release != None:
             self.transfer_image()
 
         # Check target image integrity
-        elif self.step == 'Verify MD5':
+        elif self.step == 'Verify MD5' and self.target_release != None:
            self.verify_image_integrity()
 
         elif self.step == 'Pre-Validations' or self.step == 'Post-Validations':
@@ -839,7 +862,7 @@ class Upgrade():
 
         try:
             # Delete old images before copy target image to device flash 
-            self.release_flash_memory(flash)
+            #self.release_flash_memory(flash)
             # Update information of device flash
             self.get_directories_info()
             if self.device.flash_has_space(flash, self.target_release['space']):

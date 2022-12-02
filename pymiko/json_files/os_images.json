@@ -12,7 +12,7 @@
 				"space": 1017587860
 			}
 		},
-		"WS-2960-24LC-S": {
+		"WS-C2960-24LC-S": {
 			"15.0(2)SE11": {
 				"image": "c2960-lanlitek9-mz.150-2.SE11.bin",
 				"md5": "885ed3dd7278baa11538a51827c2c9f8",
@@ -34,6 +34,13 @@
 			}
 		},
 		"WS-C2960C-8TC-L": {
+			"15.2(7)E6": {
+				"image": "c2960c405-universalk9-mz.152-7.E6.bin",
+				"md5": "b94d25cba08d132551cb64a4fbe0a237",
+				"space": 18187264
+			}
+		},
+		"WS-C2960C-8PC-L": {
 			"15.2(7)E6": {
 				"image": "c2960c405-universalk9-mz.152-7.E6.bin",
 				"md5": "b94d25cba08d132551cb64a4fbe0a237",

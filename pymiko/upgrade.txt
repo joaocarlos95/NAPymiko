@@ -2,13 +2,13 @@
 | CLIENT INFORMATION																						|
 +-----------------------------------------------------------------------------------------------------------+
  Root Directory: main directory for the script output
-	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes\
+	> /Users/joaocarlos95/Documents/Warpcom/
 
  Client Name: name of the client (output of the script is saved in a folder with the client name)
 	> Warpcom
 
  FTP Server: designation of the FTP server in the following format: ftp://user:pass@ip_address/path/
-	> ftp://admin:superadmin@172.26.0.1/
+	> ftp://admin:superadmin@10.255.78.85/
 
 
 +-----------------------------------------------------------------------------------------------------------+

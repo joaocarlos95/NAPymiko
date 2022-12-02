@@ -1,11 +1,11 @@
 +-----------------------------------------------------------------------------------------------------------+
 | CLIENT INFORMATION																						|
 +-----------------------------------------------------------------------------------------------------------+
- Root Directory: directory where the script output will be placed
-	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
+ Root Directory: main directory for the script output
+	> /Users/joaocarlos95/Documents/Warpcom
 
  Client Name: name of the client (output of the script is saved in a folder with the client name)
-	> Galp
+	> Warpcom
 
 
 +-----------------------------------------------------------------------------------------------------------+
@@ -23,7 +23,7 @@
 +-----------------------------------------------------------------------------------------------------------+
  [ ] Configuration
  [X] Device Directory
- [ ] Device Information
+ [X] Device Information
  [ ] Neighbors (CDP)
  [ ] Neighbors (LLDP)
  [ ] Network Diagram
