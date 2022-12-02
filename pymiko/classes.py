@@ -139,12 +139,16 @@ class Client:
                     'status': device['status']
                 })
             for command in device['command_list']:
+                if command['status'] == None:
+                    status = device['status']
+                else:
+                    status = command['status']
                 report.append({
                     'device_hostname': device['hostname'],
                     'device_ip_address': device['ip_address'],
                     'info': command['info'],
                     'command': command['command'],
-                    'status': command['status']
+                    'status': status
                 })
 
         self.write_csv(report, filename='Configuration Report')
@@ -325,7 +329,8 @@ class Device():
             else:
                 telnet_connect()
         except Exception as exception:
-            if 'No connection could be made because the target machine actively refused it' in str(exception):
+            if 'No connection could be made because the target machine actively refused it' in str(exception) or \
+                'Connection refused' in str(exception):
                 # Connect to the device through Telnet
                 if method == 'ssh':
                     self.connect('telnet')
@@ -333,7 +338,7 @@ class Device():
                     print(f"[!] Connection refused by device with IP {self.ip_address}")
                     self.status = 'Device refused connection'
                     return
-            elif 'TCP connection to device failed' in str(exception):
+            elif 'TCP connection to device failed' in str(exception) or 'Operation timed out' in str(exception):
                 if method == 'ssh':
                     self.connect('telnet')
                 else:

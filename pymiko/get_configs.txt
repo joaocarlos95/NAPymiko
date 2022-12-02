@@ -22,7 +22,7 @@
 | INFORMATION TO BE COLLECTED																				|
 +-----------------------------------------------------------------------------------------------------------+
  [ ] Configuration
- [X] Device Directory
+ [ ] Device Directory
  [X] Device Information
  [ ] Neighbors (CDP)
  [ ] Neighbors (LLDP)

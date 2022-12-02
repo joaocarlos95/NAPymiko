@@ -94,6 +94,20 @@
 				"space": 26777600
 			}
 		},
+		"WS-C3560CX-8PC-S": {
+			"15.2(7)E5": {
+				"image": "c3560cx-universalk9-mz.152-7.E5.bin",
+				"md5": "b765a3fbf698670c8c97c26270e71910",
+				"space": 22962176
+			}
+		},
+		"WS-C3560CX-12PC-S": {
+			"15.2(7)E5": {
+				"image": "c3560cx-universalk9-mz.152-7.E5.bin",
+				"md5": "b765a3fbf698670c8c97c26270e71910",
+				"space": 22962176
+			}
+		},
 		"WS-C3650-24PS-S": {
 			"Gibraltar-16.12.7": {
 				"image": "cat3k_caa-universalk9.16.12.07.SPA.bin",
