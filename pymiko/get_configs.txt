@@ -1,12 +1,11 @@
 +-----------------------------------------------------------------------------------------------------------+
 | CLIENT INFORMATION																						|
 +-----------------------------------------------------------------------------------------------------------+
- Root Directory: directory where the script output will be placed
-	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes\SMAS Almada\04. Automation
+ Root Directory: main directory for the script output
+	> /Users/joaocarlos95/Documents/Warpcom
 
  Client Name: name of the client (output of the script is saved in a folder with the client name)
-	> SMAS Almada
-
+	> Warpcom
 
 +-----------------------------------------------------------------------------------------------------------+
 | KEEPASS INFORMATION 																						|
@@ -21,9 +20,9 @@
 +-----------------------------------------------------------------------------------------------------------+
 | INFORMATION TO BE COLLECTED																				|
 +-----------------------------------------------------------------------------------------------------------+
- [X] Configuration
+ [ ] Configuration
  [ ] Device Directory
- [ ] Device Information
+ [X] Device Information
  [ ] Neighbors (CDP)
  [X] Neighbors (LLDP)
  [ ] Network Diagram

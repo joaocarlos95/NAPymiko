@@ -40,6 +40,13 @@
 				"space": 18187264
 			}
 		},
+		"WS-C2960C-8PC-L": {
+			"15.2(7)E6": {
+				"image": "c2960c405-universalk9-mz.152-7.E6.bin",
+				"md5": "b94d25cba08d132551cb64a4fbe0a237",
+				"space": 18187264
+			}
+		},
 		"WS-C2960G-24TC-L": {
 			"12.2.55-SE12": {
 				"image": "c2960-lanbasek9-mz.122-55.SE12.bin",
@@ -85,6 +92,20 @@
 				"image": "c2960x-universalk9-mz.152-7.E6.bin",
 				"md5": "2adb9ecfefb635ef7814c8d48e3f3a4a",
 				"space": 26777600
+			}
+		},
+		"WS-C3560CX-8PC-S": {
+			"15.2(7)E5": {
+				"image": "c3560cx-universalk9-mz.152-7.E5.bin",
+				"md5": "b765a3fbf698670c8c97c26270e71910",
+				"space": 22962176
+			}
+		},
+		"WS-C3560CX-12PC-S": {
+			"15.2(7)E5": {
+				"image": "c3560cx-universalk9-mz.152-7.E5.bin",
+				"md5": "b765a3fbf698670c8c97c26270e71910",
+				"space": 22962176
 			}
 		},
 		"WS-C3650-24PS-S": {
