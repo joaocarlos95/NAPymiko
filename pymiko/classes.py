@@ -38,7 +38,7 @@ with open(f"{os.path.dirname(__file__)}/json_files/os_images.json", 'r', encodin
 class Client:
 
     def __init__(self, dir, name, keepass_db=None, keepass_pwd=None, ftp_server=None):
-        self.dir = f"{dir}/{name}/04. Automation"
+        self.dir = dir
         self.name = name
         self.keepass_db = keepass_db
         self.keepass_pwd = keepass_pwd
@@ -335,7 +335,8 @@ class Device():
                     print(f"[!] Issue with the SSH keys in the device with IP {self.ip_address}")
                     self.status = 'Issue with the SSH keys'
                     return
-            elif 'A connection attempt failed' in str(exception) or 'No existing session' in str(exception):
+            elif 'A connection attempt failed' in str(exception) or 'No existing session' in \
+                str(exception) or "Unsupported 'device_type'" in str(exception):
                 print(f"[!] Couldn't connect to the device with IP {self.ip_address}")
                 self.status = "Couldn't connect"
                 return
