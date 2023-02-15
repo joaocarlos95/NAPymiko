@@ -1,9 +1,0 @@
-Value SIZE (\d+)
-Value FREE_SPACE (\d+)
-Value TYPE (\w+)
-Value FLAGS (\w+)
-Value PREFIXES (\S+)
-
-Start
-  ^\.+Size(b)\.+Free(b)\.+Type\.+Flags\.+Prefixes -> PortChannel
-  ^.+{SIZE}\ +{FREE_SPACE}\ +{TYPE}\ +{FLAGS}\ +{PREFIXES}
