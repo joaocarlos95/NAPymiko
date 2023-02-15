@@ -2,7 +2,7 @@
 | CLIENT INFORMATION																						|
 +-----------------------------------------------------------------------------------------------------------+
  Root Directory: main directory for the script output
-	> /Users/joaocarlos95/Documents/Warpcom
+	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes\Warpcom\04. Automation
 
  Client Name: name of the client (output of the script is saved in a folder with the client name)
 	> Warpcom
@@ -22,13 +22,13 @@
 +-----------------------------------------------------------------------------------------------------------+
  [ ] Configuration
  [ ] Device Directory
- [X] Device Information
+ [ ] Device Information
  [ ] Neighbors (CDP)
- [X] Neighbors (LLDP)
+ [ ] Neighbors (LLDP)
  [ ] Network Diagram
+ [X] Interfaces Statistics
  
 
  [ ] Inventory
  [?] Interfaces Information																					| Adicionar as SVIs/Port-Channels e respetivos endereços IPs
- [?] Interfaces Statistics 																					| Tratar da informação toda
  [ ] Custom Commands

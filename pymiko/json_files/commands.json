@@ -27,6 +27,12 @@
             "cisco_ios": ["show file system"]
         }
     },
+    "Interfaces Statistics": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show interfaces"]
+        }
+    },
     "MD5 Checksum": {
         "textfsm": false,
         "commands": {

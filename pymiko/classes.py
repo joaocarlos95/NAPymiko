@@ -22,9 +22,7 @@ from netmiko.utilities import get_structured_data
 from pykeepass import PyKeePass
 from random import randrange
 
-os.environ['NTC_TEMPLATES_DIR'] = os.path.join(os.path.dirname(__file__), 
-    './submodule/ntc-templates/ntc_templates/templates')
-os.environ['N2G_DIR'] = os.path.join(os.path.dirname(__file__), './submodule/N2G')
+os.environ['NET_TEXTFSM'] = os.path.join(os.path.dirname(__file__), 'dep/ntc-templates/ntc_templates/templates')
 
 
 # Load command list
@@ -65,43 +63,42 @@ class Client:
     #     configuration = j2_template.render(data, vendor_os=vendor_os, config_blocks=data.keys())
     #     print(configuration)
 
-    # def generate_diagram(self):
-    #     ''' Generate network diagram in drawio format, based on CDP neighbors '''
+    def generate_diagram(self):
+        ''' Generate network diagram in drawio format, based on CDP neighbors '''
 
-    #     diagram = yed_diagram()
-    #     graph = {
-    #         'nodes': [],
-    #         'links': []
-    #     }
+        diagram = yed_diagram()
+        graph = {
+            'nodes': [],
+            'links': []
+        }
         
-    #     for device in self.device_list:
-    #         graph['nodes'].append({
-    #             'id': device.ip_address, 
-    #             'top_label': device.hostname
-    #         })
-            
-    #         for command in device.command_list:
-    #             if 'Network Diagram' in command.info:
-    #                 for neighbor in command.output_parsed:
-    #                     graph['nodes'].append({
-    #                         'id': neighbor['management_ip'],
-    #                         'top_label': neighbor['destination_host'],
-    #                         'bottom_label': neighbor['platform'],
-    #                         'description': f"capabilities: {neighbor['capabilities']}"
-    #                     })
-    #                     graph['links'].append({
-    #                         'source': device.ip_address, 
-    #                         'target': neighbor['management_ip'],
-    #                         'src_label': neighbor['local_port'],
-    #                         'trgt_label': neighbor['remote_port']
-    #                     })
+        for device in self.report:
+            graph['nodes'].append({
+                'id': device['ip_address'], 
+                'top_label': device['hostname']
+            })
+            for command in device['command_list']:
+                if 'Network Diagram' in command['info']:
+                    for neighbor in command['output_parsed']:
+                        graph['nodes'].append({
+                            'id': neighbor['management_ip'],
+                            'top_label': neighbor['destination_host'],
+                            'bottom_label': neighbor['platform'],
+                            'description': f"capabilities: {neighbor['capabilities']}"
+                        })
+                        graph['links'].append({
+                            'source': device['ip_address'], 
+                            'target': neighbor['management_ip'],
+                            'src_label': neighbor['local_port'],
+                            'trgt_label': neighbor['remote_port']
+                        })
 
-    #     diagram.from_dict(graph)
-    #     diagram.layout(algo='tree')
+        diagram.from_dict(graph)
+        diagram.layout(algo='tree')
 
-    #     print('[>] Generating Network Diagram')
-    #     current_datetime = date.today().strftime('%Y%m%d')
-    #     diagram.dump_file(filename=f"[{current_datetime}] Network Diagram.graphml", folder=f"{self.dir}/outputfiles")
+        print('[>] Generating Network Diagram')
+        current_datetime = date.today().strftime('%Y%m%d')
+        diagram.dump_file(filename=f"[{current_datetime}] Network Diagram.graphml", folder=f"{self.dir}/outputfiles")
 
     def generate_config_parsed(self):
         ''' Merge textfsm output from all devices in a single .csv file '''
@@ -595,7 +592,7 @@ class Command():
                 # Parse command output from the device
                 if self.textfsm:
                     self.output_parsed = get_structured_data(self.output, \
-                        platform=self.device.vendor_os, command=self.command)
+                         platform=self.device.vendor_os, command=self.command)
 
             if 'Invalid input detected' in self.output:
                 print(f"[!] Command not found: {self.command}")
