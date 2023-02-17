@@ -26,7 +26,8 @@
  [ ] Neighbors (CDP)
  [ ] Neighbors (LLDP)
  [ ] Network Diagram
- [X] Interfaces Statistics
+ [ ] Interfaces Statistics
+ [X] Interfaces Counters
  
 
  [ ] Inventory

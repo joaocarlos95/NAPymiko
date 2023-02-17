@@ -293,6 +293,13 @@ class Device():
         self.upgrade_list = []
         self.status = None
     
+    def clear_counters(self):
+        ''' Clear device counters '''
+
+        self.connection.send_command('clear counters', expect_string=r'confirm')
+        self.connection.send_command('\n')
+
+
     def connect(self, method='ssh'):
         ''' Connect to the device in the following order: SSH, Telnet '''
 
@@ -573,6 +580,11 @@ class Command():
         if self.device.connection == None: return
         # Reconnect to the device, since connection was closed
         elif not self.device.connection.is_alive(): self.device.connect()
+
+        if self.info == 'Interfaces Counters':
+            print('[>] Clearing counters and waiting 5 minutes...')
+            self.device.clear_counters()
+            time.sleep(300)
 
         try:
             # Apply configuration on the device, entering in configuration mode
