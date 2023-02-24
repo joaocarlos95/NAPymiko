@@ -19,24 +19,21 @@ from multiprocessing import Process
 from N2G import yed_diagram
 from netmiko import ConnectHandler, file_transfer
 from netmiko.utilities import get_structured_data
+from OuiLookup import OuiLookup
 from pykeepass import PyKeePass
 from random import randrange
 
 os.environ['NET_TEXTFSM'] = os.path.join(os.path.dirname(__file__), 'dep/ntc-templates/ntc_templates/templates')
 
-
-# Load command list
-with open(f"{os.path.dirname(__file__)}/json_files/commands.json", 'r', encoding='utf-8') as cmds:
-    COMMAND_LIST = json.load(cmds)
-
 # Load software image information
 with open(f"{os.path.dirname(__file__)}/json_files/os_images.json", 'r', encoding='utf-8') as imgs: 
     OS_IMAGE_LIST = json.load(imgs)
 
+COMMAND_LIST = None
 
 class Client:
 
-    def __init__(self, dir, name, keepass_db=None, keepass_pwd=None, ftp_server=None):
+    def __init__(self, dir, name, cmd_list=None, keepass_db=None, keepass_pwd=None, ftp_server=None):
         self.dir = dir
         self.name = name
         self.keepass_db = keepass_db
@@ -46,6 +43,9 @@ class Client:
         self.upgrade_list = None
         self.ftp_server = ftp_server
         self.report = None
+
+        global COMMAND_LIST
+        COMMAND_LIST = cmd_list
 
         self.get_devices_from_csv()
 
@@ -536,6 +536,16 @@ class Device():
         except Exception as exception:
             raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.ip_address)
 
+    def set_configs(self, set_configs_info):
+        ''' Get device configuration from pre-defined list and create a command object for each
+            command to be issued on the device '''
+
+        for info in set_configs_info:
+
+            for txt_command in COMMAND_LIST[info]['commands'][self.vendor_os]:
+                # Create a command object and run it on the device
+                command = self.create_command(info, txt_command, COMMAND_LIST[info]['textfsm'])
+                command.run()
 
     # def serial_connect(self):
 
@@ -573,6 +583,14 @@ class Command():
         self.output_parsed = None
         self.status = None
 
+    def get_mac_vendor(self):
+        ''' Get MAC Address vendor from all devices connected to the switch '''
+
+        for line in self.output_parsed:
+            vendor = list(OuiLookup().query(line['destination_address'])[0].values())[0]
+            print(vendor)
+            line['vendor'] = vendor
+
     def run(self, config_mode=False, save_output=True):
         ''' Connect to a given device and run the requested command '''
 
@@ -583,8 +601,8 @@ class Command():
 
         if self.info == 'Interfaces Counters':
             print('[>] Clearing counters and waiting 5 minutes...')
-            self.device.clear_counters()
-            time.sleep(300)
+            #self.device.clear_counters()
+            #time.sleep(300)
 
         try:
             # Apply configuration on the device, entering in configuration mode
@@ -606,6 +624,9 @@ class Command():
                     self.output_parsed = get_structured_data(self.output, \
                          platform=self.device.vendor_os, command=self.command)
 
+                    if self.info == 'MAC Address Table':
+                        self.get_mac_vendor()
+
             if 'Invalid input detected' in self.output:
                 print(f"[!] Command not found: {self.command}")
                 self.status = 'Command not found'
@@ -621,8 +642,7 @@ class Command():
                 self.status = f"Error getting information from command: {self.command}"
                 return
             raise Exception(f"Error in {inspect.currentframe().f_code.co_name}", exception, self.device.ip_address)
-        
-        self.save_output()
+
 
     def save_output(self):
         ''' Save in a .txt file the output of the command issued on the device '''

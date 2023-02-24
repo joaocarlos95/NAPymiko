@@ -29,14 +29,24 @@
     },
     "Interfaces Counters": {
         "textfsm": true,
+        "clear_counters": {
+            "to_clear": false,
+            "cisco_ios": ["clear counters"]
+        },
         "commands": {
             "cisco_ios": ["show interfaces counters"]
         }
     },
-    "Interfaces Statistics": {
+    "Interfaces Information": {
         "textfsm": true,
         "commands": {
             "cisco_ios": ["show interfaces"]
+        }
+    },
+    "MAC Address Table": {
+        "textfsm": true,
+        "commands": {
+            "cisco_ios": ["show mac address-table"]
         }
     },
     "MD5 Checksum": {

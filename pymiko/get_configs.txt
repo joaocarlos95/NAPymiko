@@ -23,13 +23,13 @@
  [ ] Configuration
  [ ] Device Directory
  [ ] Device Information
+ [X] Interfaces Counters
+ [ ] Interfaces Information
+ [ ] MAC Address Table
  [ ] Neighbors (CDP)
  [ ] Neighbors (LLDP)
  [ ] Network Diagram
- [ ] Interfaces Statistics
- [X] Interfaces Counters
  
 
  [ ] Inventory
- [?] Interfaces Information																					| Adicionar as SVIs/Port-Channels e respetivos endereços IPs
  [ ] Custom Commands
