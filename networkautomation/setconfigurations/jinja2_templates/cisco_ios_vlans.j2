@@ -1,5 +1,0 @@
-{#- Note: create necessary vlans -#}
-{% for vlan_id, vlan_name in device.vlans | dictsort %}
-vlan {{ vlan_id }}
-    name {{ vlan_name }}
-{% endfor %}

@@ -1,0 +1,16 @@
++-----------------------------------------------------------------------------------------------------------+
+| CLIENT INFORMATION																						|
++-----------------------------------------------------------------------------------------------------------+
+ Root Directory: directory where the script output will be placed
+	> C:\Users\joao.costa\OneDrive - Warpcom Services S.A\Warpcom\01. Clientes
+
+ Client Name: name of the client (output of the script is saved in a folder with the client name)
+	> Hotel Onyria
+
+
++-----------------------------------------------------------------------------------------------------------+
+| CONFIGURATIONS TO BE GENERATED																			|
++-----------------------------------------------------------------------------------------------------------+
+ [ ] VLANs
+ [ ] IP Address
+ [X] IGMP

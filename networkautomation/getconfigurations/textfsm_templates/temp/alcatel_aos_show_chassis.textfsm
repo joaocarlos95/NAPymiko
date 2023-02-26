@@ -1,7 +1,0 @@
-Value List model (\S+)
-Value List serial_number (\w+)
-Value Filldown hostname (\S+)
-
-Start
-  ^.*Model Name:.*\s${model},
-  ^.*Serial Number:.*\s${serial_number},

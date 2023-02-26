@@ -1,0 +1,3 @@
+[submodule "pymiko/dep/ntc-templates"]
+	path = pymiko/dep/ntc-templates
+	url = https://github.com/networktocode/ntc-templates.git
